@@ -1,5 +1,14 @@
 import { useEffect } from 'react'
-import { WebGLRenderer, Scene, PerspectiveCamera, SphereGeometry, MeshStandardMaterial, Mesh, DirectionalLight } from 'three'
+import {
+  WebGLRenderer,
+  Scene,
+  PerspectiveCamera,
+  SphereGeometry,
+  MeshStandardMaterial,
+  Mesh,
+  DirectionalLight,
+  TextureLoader
+} from 'three'
 
 export default function Home() {
   useEffect( () => {
@@ -28,7 +37,13 @@ export default function Home() {
 
     // 球体を作成
     const geometry = new SphereGeometry(300, 30, 30)
-    const material = new MeshStandardMaterial({color: 0xFF0000})
+    // 画像を読み込む
+    const loader = new TextureLoader()
+    const texture = loader.load('/earthmap1k.jpg')
+    // マテリアルにテクスチャーを設定
+    const material = new MeshStandardMaterial({
+      map: texture
+    })
     // メッシュを作成
     const mesh = new Mesh(geometry, material)
     // 3D空間にメッシュを追加
