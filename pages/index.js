@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { WebGLRenderer, Scene, PerspectiveCamera, BoxGeometry, MeshNormalMaterial, Mesh } from 'three'
+import { WebGLRenderer, Scene, PerspectiveCamera, SphereGeometry, MeshStandardMaterial, Mesh, DirectionalLight } from 'three'
 
 export default function Home() {
   useEffect( () => {
@@ -17,7 +17,6 @@ export default function Home() {
     const renderer = new WebGLRenderer({
       canvas: document.querySelector('#myCanvas')
     })
-    renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(width, height)
 
     // シーンを作成
@@ -27,18 +26,27 @@ export default function Home() {
     const camera = new PerspectiveCamera(45, width / height)
     camera.position.set(0, 0, +1000)
 
-    // 箱を作成
-    const geometry = new BoxGeometry(400, 400, 400)
-    const material = new MeshNormalMaterial()
-    const box = new Mesh(geometry, material)
-    scene.add(box)
+    // 球体を作成
+    const geometry = new SphereGeometry(300, 30, 30)
+    const material = new MeshStandardMaterial({color: 0xFF0000})
+    // メッシュを作成
+    const mesh = new Mesh(geometry, material)
+    // 3D空間にメッシュを追加
+    scene.add(mesh)
+
+    // 平行光源
+    const directionalLight = new DirectionalLight(0xFFFFFF)
+    directionalLight.position.set(1, 1, 1)
+    // シーンに追加
+    scene.add(directionalLight)
 
     tick()
 
     // 毎フレーム時に実行されるループイベントです
     function tick() {
-      box.rotation.y += 0.01
-      renderer.render(scene, camera) // レンダリング
+      mesh.rotation.y += 0.01
+      // レンダリング
+      renderer.render(scene, camera)
 
       requestAnimationFrame(tick)
     }
