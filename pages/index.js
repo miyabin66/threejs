@@ -27,7 +27,8 @@ export default function Home() {
     // サイズを指定
     const width = 960
     const height = 540
-    let rot = 0
+    let rot = 0 // 角度
+    let mouseX = 0
 
     // レンダラーを作成
     const renderer = new WebGLRenderer({
@@ -40,7 +41,8 @@ export default function Home() {
 
     // カメラを作成
     const camera = new PerspectiveCamera(45, width / height)
-    
+  
+    // 平行光源を作成
     const directionalLight = new DirectionalLight(0xffffff)
     directionalLight.position.set(1, 1, 1)
     scene.add(directionalLight)
@@ -84,12 +86,23 @@ export default function Home() {
       const mesh = new Points(geometry, material)
       scene.add(mesh)
     }
+  
+    // マウス座標はマウスが動いた時のみ取得できる
+    document.addEventListener('mousemove', event => {
+      mouseX = event.pageX
+    })
 
     tick()
 
     // 毎フレーム時に実行されるループイベントです
     function tick() {
-      rot += 0.5  // 毎フレーム角度を0.5度ずつ足していく
+      // マウスの位置に応じて角度を設定
+      // マウスのX座標がステージの幅の何%の位置にあるか調べてそれを360度で乗算する
+      const targetRot = (mouseX / window.innerWidth) * 360
+      // イージングの公式を用いて滑らかにする
+      // 値 += (目標値 - 現在の値) * 減速値
+      rot += (targetRot - rot) * 0.02
+      
       // ラジアンに変換する
       const radian = (rot * Math.PI) / 180
       // 角度に応じてカメラの位置を設定
@@ -97,6 +110,8 @@ export default function Home() {
       camera.position.z = 1000 * Math.cos(radian)
       // 原点方向を見つめる
       camera.lookAt(new Vector3(0, 0, 0))
+      // 地球は常に回転させておく
+      earthMesh.rotation.y += 0.01
       
       // レンダリング
       renderer.render(scene, camera)
