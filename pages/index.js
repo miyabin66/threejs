@@ -8,15 +8,12 @@ import {
   Mesh,
   DirectionalLight,
   Vector3,
-  Object3D,
+  TextureLoader,
   DoubleSide,
-  AmbientLight,
-  BoxGeometry,
-  PlaneGeometry,
-  TetrahedronGeometry,
-  ConeGeometry,
-  CylinderGeometry,
-  TorusGeometry
+  BufferGeometry,
+  BufferAttribute,
+  PointsMaterial,
+  Points
 } from 'three'
 
 export default function Home() {
@@ -30,6 +27,7 @@ export default function Home() {
     // サイズを指定
     const width = 960
     const height = 540
+    let rot = 0
 
     // レンダラーを作成
     const renderer = new WebGLRenderer({
@@ -42,54 +40,64 @@ export default function Home() {
 
     // カメラを作成
     const camera = new PerspectiveCamera(45, width / height)
-    camera.position.set(0, 500, +1000)
-    camera.lookAt(new Vector3(0, 0, 0))
     
-    const container = new Object3D()
-    scene.add(container)
+    const directionalLight = new DirectionalLight(0xffffff)
+    directionalLight.position.set(1, 1, 1)
+    scene.add(directionalLight)
   
     // マテリアルを作成
     const material = new MeshStandardMaterial({
-      color: 0xff0000,
+      map: new TextureLoader().load('/earthmap1k.jpg'),
       side: DoubleSide
     })
   
-    // 平行光源を作成
-    const directionalLight = new DirectionalLight(0xFFFFFF)
-    directionalLight.position.set(1, 1, 1)
-    scene.add(directionalLight)
-    // 環境光を作成
-    const ambientLight = new AmbientLight(0x999999)
-    scene.add(ambientLight)
+    // 球体の形状を作成します
+    const geometry = new SphereGeometry(300, 30, 30)
+    // 形状とマテリアルからメッシュを作成します
+    const earthMesh = new Mesh(geometry, material)
+    // シーンにメッシュを追加します
+    scene.add(earthMesh)
   
-    // ジオメトリを作成
-    const geometryList = [
-      new SphereGeometry(50), // 球体
-      new BoxGeometry(100, 100, 100), // 直方体
-      new PlaneGeometry(100, 100), // 平面
-      new TetrahedronGeometry(100, 0), // カプセル形状
-      new ConeGeometry(100, 100, 32), // 三角錐
-      new CylinderGeometry(50, 50, 100, 32), // 円柱
-      new TorusGeometry(50, 30, 16, 100) // ドーナツ形状
-    ]
+    // 星屑を作成します (カメラの動きをわかりやすくするため)
+    createStarField()
     
-    geometryList.map((geometry, index) => {
-      // 形状とマテリアルからメッシュを作成します
-      const mesh = new Mesh(geometry, material)
+    function createStarField() {
+      // 形状データを作成
+      const geometry = new BufferGeometry()
+      const vertices = []
+      for (let i = 0; i < 1000; i++) {
+        vertices.push(
+          3000 * (Math.random() - 0.5),
+          3000 * (Math.random() - 0.5),
+          3000 * (Math.random() - 0.5)
+        )
+      }
+      geometry.setAttribute( 'position', new BufferAttribute( new Float32Array(vertices), 3 ) )
+      
+      // マテリアルを作成
+      const material = new PointsMaterial({
+        size: 10,
+        color: 0xffffff
+      })
   
-      // 3D表示インスタンスのsceneプロパティーが3D表示空間となります
-      container.add(mesh)
-  
-      // 円周上に配置
-      mesh.position.x = 400 * Math.sin((index / geometryList.length) * Math.PI * 2)
-      mesh.position.z = 400 * Math.cos((index / geometryList.length) * Math.PI * 2)
-    })
+      // 物体を作成
+      const mesh = new Points(geometry, material)
+      scene.add(mesh)
+    }
 
     tick()
 
     // 毎フレーム時に実行されるループイベントです
     function tick() {
-      container.rotation.y += 0.01
+      rot += 0.5  // 毎フレーム角度を0.5度ずつ足していく
+      // ラジアンに変換する
+      const radian = (rot * Math.PI) / 180
+      // 角度に応じてカメラの位置を設定
+      camera.position.x = 1000 * Math.sin(radian)
+      camera.position.z = 1000 * Math.cos(radian)
+      // 原点方向を見つめる
+      camera.lookAt(new Vector3(0, 0, 0))
+      
       // レンダリング
       renderer.render(scene, camera)
 
