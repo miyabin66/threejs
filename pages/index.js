@@ -7,7 +7,7 @@ import {
   BoxGeometry,
   MeshNormalMaterial
 } from 'three'
-import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls'
+import OrbitControls from 'three-orbitcontrols'
 
 export default function Home() {
   useEffect( () => {
