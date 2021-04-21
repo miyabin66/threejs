@@ -5,7 +5,7 @@ import {
   PerspectiveCamera,
   Mesh,
   TorusGeometry,
-  MeshBasicMaterial,
+  MeshNormalMaterial,
 } from 'three'
 
 export default function Home() {
@@ -36,7 +36,7 @@ export default function Home() {
     // ドーナツを作成
     const geometry = new TorusGeometry(300, 100, 64, 100)
     // マテリアルを作成
-    const material = new MeshBasicMaterial({ color: 0x6699ff })
+    const material = new MeshNormalMaterial()
     // メッシュを作成
     const mesh = new Mesh(geometry, material)
     // 3D空間にメッシュを追加
